@@ -132,15 +132,16 @@ Then open the printed local URL (default **http://localhost:5173**).
 
 ## 📸 Screenshots
 
-> _Add screenshots or a screen recording here._
+### Dashboard
+![Dashboard](docs/screenshots/dashboard.png)
 
-| Dashboard | Products |
+| Products | Categories |
 | --- | --- |
-| _`docs/dashboard.png`_ | _`docs/products.png`_ |
+| ![Products](docs/screenshots/products.png) | ![Categories](docs/screenshots/categories.png) |
 
-| Categories | Stock & History |
+| Stock & History | Settings (Dark mode) |
 | --- | --- |
-| _`docs/categories.png`_ | _`docs/stock.png`_ |
+| ![Stock management](docs/screenshots/stock.png) | ![Settings](docs/screenshots/settings.png) |
 
 ## 📄 License
 
