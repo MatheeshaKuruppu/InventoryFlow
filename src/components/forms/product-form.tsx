@@ -149,7 +149,7 @@ export function ProductForm({
           </Field>
 
           <div className="grid grid-cols-2 gap-4">
-            <Field label="Price ($)" htmlFor="price" required error={errors.price} touched={touched.price}>
+            <Field label="Price (Rs)" htmlFor="price" required error={errors.price} touched={touched.price}>
               <Input
                 id="price"
                 name="price"

@@ -1,14 +1,16 @@
 import { format, formatDistanceToNow, parseISO } from 'date-fns';
 
-const currencyFormatter = new Intl.NumberFormat('en-US', {
+const currencyFormatter = new Intl.NumberFormat('en-LK', {
   style: 'currency',
-  currency: 'USD',
+  currency: 'LKR',
+  currencyDisplay: 'narrowSymbol',
   maximumFractionDigits: 2,
 });
 
-const compactCurrencyFormatter = new Intl.NumberFormat('en-US', {
+const compactCurrencyFormatter = new Intl.NumberFormat('en-LK', {
   style: 'currency',
-  currency: 'USD',
+  currency: 'LKR',
+  currencyDisplay: 'narrowSymbol',
   notation: 'compact',
   maximumFractionDigits: 1,
 });
