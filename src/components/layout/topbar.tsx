@@ -43,10 +43,8 @@ export function Topbar({ userEmail = 'admin@adventaholdings.com' }: TopbarProps)
 
       {/* Mobile navigation drawer */}
       <Dialog open={menuOpen} onOpenChange={setMenuOpen}>
-        <DialogContent
-          hideClose
-          className="left-0 top-0 h-full max-w-[17rem] translate-x-0 translate-y-0 rounded-none border-r p-0"
-        >
+        <DialogContent hideClose side="left" className="max-w-[17rem] p-0">
+
           <DialogTitle className="sr-only">Navigation</DialogTitle>
           <div className="flex h-16 items-center border-b border-border px-5">
             <Brand />
