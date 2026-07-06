@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import type { Product } from '@/types';
 import { useInventoryStore } from '@/store/inventoryStore';
@@ -21,9 +21,20 @@ import {
 interface ProductFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /** When provided the dialog edits this product; otherwise it creates one. */
+  /** When provided the dialog opens directly in edit mode for this product. */
   product?: Product | null;
   onCreateCategory?: () => void;
+}
+
+// Turns a stored Product into the string-based form values Formik expects.
+function toFormValues(product: Product): ProductFormValues {
+  return {
+    name: product.name,
+    id: product.id,
+    categoryId: product.categoryId,
+    price: String(product.price),
+    quantity: String(product.quantity),
+  };
 }
 
 export function ProductFormDialog({
@@ -37,25 +48,29 @@ export function ProductFormDialog({
   const addProduct = useInventoryStore((s) => s.addProduct);
   const updateProduct = useInventoryStore((s) => s.updateProduct);
 
-  const isEdit = Boolean(product);
+  // The product currently being edited. Null = we're creating a new product.
+  // It starts from the `product` prop but can change if the user picks an
+  // existing product from the name typeahead.
+  const [editTarget, setEditTarget] = useState<Product | null>(product ?? null);
 
-  const initialValues = useMemo<ProductFormValues>(() => {
-    if (product) {
-      return {
-        name: product.name,
-        id: product.id,
-        categoryId: product.categoryId,
-        price: String(product.price),
-        quantity: String(product.quantity),
-      };
-    }
-    return emptyProductValues();
-    // Re-derive whenever the dialog target changes.
-  }, [product]);
+  // Whenever the dialog (re)opens, reset the edit target to the incoming prop.
+  useEffect(() => {
+    if (open) setEditTarget(product ?? null);
+  }, [open, product]);
 
+  const isEdit = editTarget !== null;
+
+  // Initial form values: the target's data when editing, else blank + new SKU.
+  const initialValues = useMemo<ProductFormValues>(
+    () => (editTarget ? toFormValues(editTarget) : emptyProductValues()),
+    [editTarget],
+  );
+
+  // IDs that are already taken - excluding the one we're editing, so its own
+  // ID doesn't count as a duplicate.
   const reservedIds = useMemo(
-    () => products.filter((p) => p.id !== product?.id).map((p) => p.id),
-    [products, product?.id],
+    () => products.filter((p) => p.id !== editTarget?.id).map((p) => p.id),
+    [products, editTarget?.id],
   );
 
   const handleSubmit = (values: ProductFormValues) => {
@@ -67,8 +82,8 @@ export function ProductFormDialog({
       quantity: Number(values.quantity),
     };
 
-    if (isEdit && product) {
-      updateProduct(product.id, payload);
+    if (isEdit && editTarget) {
+      updateProduct(editTarget.id, payload);
       toast.success('Product updated', { description: payload.name });
     } else {
       addProduct(payload);
@@ -85,7 +100,7 @@ export function ProductFormDialog({
           <DialogDescription>
             {isEdit
               ? 'Update the details for this product.'
-              : 'Fill in the details below to add a product to your inventory.'}
+              : 'Fill in the details below, or start typing a name to edit an existing product.'}
           </DialogDescription>
         </DialogHeader>
 
@@ -106,14 +121,20 @@ export function ProductFormDialog({
             }
           />
         ) : (
-          // key forces a fresh Formik instance per target so fields reset correctly.
+          // The `key` forces a fresh Formik instance whenever the edit target
+          // changes (new product, or a suggestion was picked), so the fields
+          // reload with the correct initial values.
           <ProductForm
-            key={product?.id ?? 'new'}
+            key={editTarget?.id ?? 'new'}
             categories={categories}
+            products={products}
             initialValues={initialValues}
             reservedIds={reservedIds}
+            isEditing={isEdit}
             submitLabel={isEdit ? 'Save changes' : 'Add product'}
             onSubmit={handleSubmit}
+            onSelectExisting={(selected) => setEditTarget(selected)}
+            onCreateNew={() => setEditTarget(null)}
             onCancel={() => onOpenChange(false)}
           />
         )}
